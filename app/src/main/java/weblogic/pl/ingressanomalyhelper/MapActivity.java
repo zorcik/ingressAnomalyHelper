@@ -10,6 +10,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,13 +34,25 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
+    private static boolean firstSync = true;
+
     private int CurrentCluster = 1;
+
+    public static GoogleAnalytics analytics;
+    public static Tracker tracker;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_acitivity);
         setUpMapIfNeeded();
+        analytics = GoogleAnalytics.getInstance(this);
+        analytics.setLocalDispatchPeriod(1800);
+
+        tracker = analytics.newTracker("UA-64291669-1"); // Replace with actual tracker/property Id
+        tracker.enableExceptionReporting(true);
+        tracker.enableAutoActivityTracking(true);
     }
 
     @Override
@@ -108,20 +122,24 @@ public class MapActivity extends FragmentActivity implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
 
-        // Getting latitude of the current location
-        double latitude = location.getLatitude();
+        if (firstSync) {
+            // Getting latitude of the current location
+            double latitude = location.getLatitude();
 
-        // Getting longitude of the current location
-        double longitude = location.getLongitude();
+            // Getting longitude of the current location
+            double longitude = location.getLongitude();
 
-        // Creating a LatLng object for the current location
-        LatLng latLng = new LatLng(latitude, longitude);
+            // Creating a LatLng object for the current location
+            LatLng latLng = new LatLng(latitude, longitude);
 
-        // Showing the current location in Google Map
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            // Showing the current location in Google Map
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
-        // Zoom in the Google Map
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            // Zoom in the Google Map
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+
+            firstSync = false;
+        }
 
     }
 
