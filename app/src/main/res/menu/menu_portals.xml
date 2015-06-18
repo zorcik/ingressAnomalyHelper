@@ -4,8 +4,8 @@
     tools:context="weblogic.pl.ingressanomalyhelper.Portals">
 
     <item android:id="@+id/action_check_all" android:title="@string/action_check"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="100" />
     <item android:id="@+id/action_uncheck_all" android:title="@string/action_uncheck"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="100" />
 
 </menu>
