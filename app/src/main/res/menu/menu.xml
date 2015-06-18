@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/cluster1"
+        android:title="Klaster 1"
+        />
+    <item android:id="@+id/cluster2"
+        android:title="Klaster 2" />
+    <item android:id="@+id/cluster3"
+        android:title="Klaster 3" />
+    <item android:id="@+id/cluster4"
+        android:title="Klaster 4" />
+    <item android:id="@+id/editPortals"
+        android:title="Edytuj portale" />
+</menu>
+

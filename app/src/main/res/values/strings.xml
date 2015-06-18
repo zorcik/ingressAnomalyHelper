@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Helper Anomaliowy</string>
-    <string name="title_activity_map_acitivity">Mapa</string>
+    <string name="title_activity_map_acitivity">Poznan Anomaly Helper</string>
+    <string name="title_activity_portals">Portals</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_check">Zaznacz wszystkie</string>
+    <string name="action_uncheck">Odznacz wszystkie</string>
+    <string name="prefKey">PortalsShared</string>
+
 </resources>

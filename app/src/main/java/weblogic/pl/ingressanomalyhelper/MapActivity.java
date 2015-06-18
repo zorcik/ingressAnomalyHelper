@@ -1,7 +1,14 @@
 package weblogic.pl.ingressanomalyhelper;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -12,10 +19,20 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import android.location.Criteria;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 
-public class MapAcitivity extends FragmentActivity implements LocationListener {
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+public class MapActivity extends FragmentActivity implements LocationListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+
+    private int CurrentCluster = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +102,7 @@ public class MapAcitivity extends FragmentActivity implements LocationListener {
         }
         locationManager.requestLocationUpdates(provider, 2000, 0, this);
         //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        showCluster(1);
     }
 
     @Override
@@ -120,5 +138,102 @@ public class MapAcitivity extends FragmentActivity implements LocationListener {
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         // TODO Auto-generated method stub
+    }
+
+    public void showCluster(int i)
+    {
+        CurrentCluster = i;
+        mMap.clear();
+        InputStream ins = getResources().openRawResource(
+                getResources().getIdentifier("cluster"+i,
+                        "raw", getPackageName()));
+        String json = readTextFile(ins);
+        try {
+            JSONArray jArray = new JSONArray(json);
+            int length = jArray.length();
+            Log.d("INGRR", "LENGTH: "+length);
+            SharedPreferences sharedPref = getSharedPreferences(getString(R.string.prefKey), Context.MODE_PRIVATE);
+            for (int a=0; a<length; a++)
+            {
+                JSONObject oneObject = jArray.getJSONObject(a);
+                Log.d("INGRR", "DODAJE: "+oneObject.getString("name"));
+
+                String t = "Cluster"+i+"-Portal"+a;
+                boolean showPortal = sharedPref.getBoolean(t, true);
+                Log.d("INGGR", "Nazwa (1): "+t+": "+(showPortal ? "true" : "false"));
+                if (showPortal)
+                {
+                    mMap.addMarker(new MarkerOptions().position(new LatLng(oneObject.getDouble("lng"), oneObject.getDouble("lat"))).title(oneObject.getString("name")));
+                }
+
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e("INGRR", "ERROR Parsing Data: "+e.getMessage());
+        }
+
+    }
+
+    public String readTextFile(InputStream inputStream) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        byte buf[] = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+
+        }
+        return outputStream.toString();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.cluster1:
+                showCluster(1);
+                return true;
+            case R.id.cluster2:
+                showCluster(2);
+                return true;
+            case R.id.cluster3:
+                showCluster(3);
+                return true;
+            case R.id.cluster4:
+                showCluster(4);
+                return true;
+            case R.id.editPortals:
+                editPortals(this.CurrentCluster);
+                return true;
+            default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void editPortals(int currentCluster)
+    {
+        Intent intent = new Intent(this, Portals.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt("currentCluster", currentCluster);
+        intent.putExtras(bundle);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        showCluster(CurrentCluster);
     }
 }
