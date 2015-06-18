@@ -3,7 +3,6 @@ package weblogic.pl.ingressanomalyhelper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -138,26 +137,29 @@ public class Portals extends Activity {
     {
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.prefKey), Context.MODE_PRIVATE);
         ListView listView = (ListView) findViewById(R.id.listView1);
-        int items = listView.getAdapter().getCount(); //   .getChildCount(); //do poprawy
+        int items = listView.getAdapter().getCount();
+        PortalAdapter adapter = (PortalAdapter)listView.getAdapter();
         SharedPreferences.Editor editor = sharedPref.edit();
         for (int indeks=0; indeks < items; indeks++)
         {
             View v = listView.getAdapter().getView(indeks, null, listView);
-            CheckBox holder = (CheckBox) v.findViewById(R.id.checkBox1);
-            Portal portal = (Portal)holder.getTag();
+            PortalAdapter.ViewHolder holder = (PortalAdapter.ViewHolder) v.getTag();
+            Portal portal = (Portal)holder.name.getTag();
             Log.v("INGREE", "Portal: "+portal.getName());
-            holder.setSelected(checked);
+            holder.name.setChecked(checked);
             portal.setSelected(checked);
             String t = "Cluster"+Portals.currentCluster+"-Portal"+portal.getCode();
             editor.putBoolean(t, checked);
-            v.refreshDrawableState();
+            editor.commit();
+            Portal Portal = adapter.PortalList.get(indeks);
+            Portal.setSelected(checked);
         }
-        editor.commit();
+        adapter.notifyDataSetChanged ();
     }
 
     public class PortalAdapter extends ArrayAdapter<Portal> {
 
-        private ArrayList<Portal> PortalList;
+        public ArrayList<Portal> PortalList;
 
         public PortalAdapter(Context context, int textViewResourceId,
                              ArrayList<Portal> PortalList) {
